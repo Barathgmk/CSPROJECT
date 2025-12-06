@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Secrets
+.env
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Data / generated files (optional)
+penny_candidates.csv

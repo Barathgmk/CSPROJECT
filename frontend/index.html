@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Penny Buzz Stock Trader - Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-left: 5px solid #667eea;
+    }
+
+    header h1 {
+      color: #667eea;
+      margin-bottom: 0.5rem;
+      font-size: 2.5rem;
+    }
+
+    header p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .demo-badge {
+      display: inline-block;
+      background: #fff3cd;
+      color: #856404;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1200px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .card h2 {
+      color: #667eea;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: #667eea;
+      border-radius: 2px;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      margin-right: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    .stat-change {
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      opacity: 0.8;
+    }
+
+    .stat-change.positive {
+      color: #4ade80;
+    }
+
+    .stat-change.negative {
+      color: #f87171;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background: #f9f9f9;
+      color: #667eea;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    tr:hover {
+      background: #f5f5f5;
+    }
+
+    .symbol {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .positive {
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .negative {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .signal-buy {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .signal-sell {
+      background: #fee2e2;
+      color: #7f1d1d;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .signal-hold {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .log {
+      background: #1a1a1a;
+      color: #00ff00;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.85rem;
+      max-height: 300px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+
+    .log-entry {
+      margin-bottom: 0.5rem;
+      padding: 0.25rem 0;
+    }
+
+    .log-success { color: #00ff00; }
+    .log-error { color: #ff4444; }
+    .log-info { color: #00aaff; }
+    .log-warn { color: #ffaa00; }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab-button {
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #999;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-button.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin: 1.5rem 0;
+    }
+
+    .prediction-card {
+      background: #f0f9ff;
+      border-left: 4px solid #667eea;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+    }
+
+    .prediction-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .prediction-label {
+      color: #666;
+      font-weight: 500;
+    }
+
+    .prediction-value {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .confidence-bar {
+      background: #e0e0e0;
+      height: 8px;
+      border-radius: 4px;
+      margin: 0.5rem 0;
+      overflow: hidden;
+    }
+
+    .confidence-fill {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      height: 100%;
+      border-radius: 4px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .status {
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .status.show { display: block; }
+    .status.success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+    .status.error { background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444; }
+    .status.info { background: #dbeafe; color: #0c2340; border-left: 4px solid #3b82f6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+  <div class="container">
+    <header>
+      <h1>📈 Penny Buzz Stock Trader</h1>
+      <p>AI-Powered Penny Stock Screener & Trading Demo</p>
+      <div class="demo-badge">🎮 DEMO MODE - No Real Money Involved</div>
+    </header>
+
+    <div class="stats-grid" id="stats">
+      <div class="stat-card">
+        <div class="stat-label">Account Balance</div>
+        <div class="stat-value">$<span id="equity">25,000</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total P&L</div>
+        <div class="stat-value" id="pnl-value">$0.00</div>
+        <div class="stat-change" id="pnl-change"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Open Positions</div>
+        <div class="stat-value" id="positions-count">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Invested</div>
+        <div class="stat-value">$<span id="invested">0</span></div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <!-- Left Column: Screener & Trading -->
+      <div>
+        <!-- Screener Card -->
+        <div class="card">
+          <h2>Stock Screener</h2>
+          
+          <div class="form-group">
+            <label>Subreddits to Scan:</label>
+            <input id="subreddits" type="text"
+                   value="pennystocks,smallstreetbets,wallstreetbets" />
+          </div>
+
+          <div class="form-group">
+            <label>Lookback Days:</label>
+            <input id="lookback_days" type="number" value="3" min="1" max="30" />
+          </div>
+
+          <div class="form-group">
+            <label>Posts per Subreddit:</label>
+            <input id="post_limit_each" type="number" value="400" min="50" />
+          </div>
+
+          <div class="form-group">
+            <label>Max Stock Price:</label>
+            <input id="price_max" type="number" value="5" step="0.50" min="0.10" />
+          </div>
+
+          <div class="form-group">
+            <label>Min Dollar Volume:</label>
+            <input id="min_dollar_vol" type="number" value="200000" step="50000" />
+          </div>
+
+          <button class="btn btn-primary" onclick="runScan()">
+            🔍 Run Screener
+          </button>
+          <p id="scanStatus" style="margin-top: 1rem; color: #999; font-size: 0.9rem;"></p>
+        </div>
+
+        <!-- Trading Card -->
+        <div class="card" style="margin-top: 2rem;">
+          <h2>Execute Trades</h2>
+
+          <div class="form-group">
+            <label>Risk per Trade (%):</label>
+            <input id="risk_per_trade" type="number" value="2" step="0.5" min="0.5" max="10" />
+          </div>
+
+          <div class="form-group">
+            <label>Max Positions:</label>
+            <input id="max_positions" type="number" value="10" min="1" max="20" />
+          </div>
+
+          <div class="form-group">
+            <label>Min Sentiment Score:</label>
+            <input id="min_sentiment" type="number" value="0.1" step="0.05" min="-1" max="1" />
+          </div>
+
+          <div class="form-group">
+            <label>Min Mentions:</label>
+            <input id="min_mentions" type="number" value="3" min="1" max="100" />
+          </div>
+
+          <button class="btn btn-success" onclick="runTrade()" style="margin-bottom: 1rem;">
+            🚀 Execute Trades (Demo)
+          </button>
+
+          <button class="btn btn-danger" onclick="resetPortfolio()" style="width: 100%;">
+            🔄 Reset Portfolio
+          </button>
+
+          <p id="tradeStatus" style="margin-top: 1rem; color: #999; font-size: 0.9rem;"></p>
+        </div>
+      </div>
+
+      <!-- Right Column: Results & Analytics -->
+      <div>
+        <div class="card">
+          <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('screener-results')">
+              📊 Screener Results
+            </button>
+            <button class="tab-button" onclick="switchTab('predictions')">
+              🤖 ML Predictions
+            </button>
+            <button class="tab-button" onclick="switchTab('portfolio')">
+              💼 Portfolio
+            </button>
+            <button class="tab-button" onclick="switchTab('trades')">
+              📝 Trade Log
+            </button>
+          </div>
+
+          <!-- Screener Results Tab -->
+          <div id="screener-results" class="tab-content active">
+            <h3 style="margin-bottom: 1rem; color: #667eea;">Top Stock Opportunities</h3>
+            <table id="resultsTable">
+              <thead>
+                <tr>
+                  <th>Ticker</th>
+                  <th>Mentions</th>
+                  <th>Sentiment</th>
+                  <th>Price</th>
+                  <th>Vol</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody id="resultsBody">
+                <tr>
+                  <td colspan="6" style="text-align: center; color: #999;">
+                    Run screener to see results
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Predictions Tab -->
+          <div id="predictions" class="tab-content">
+            <h3 style="margin-bottom: 1rem; color: #667eea;">AI Price Predictions</h3>
+            <div id="predictionsContainer">
+              <p style="color: #999; text-align: center;">Load predictions to see ML analysis</p>
+            </div>
+          </div>
+
+          <!-- Portfolio Tab -->
+          <div id="portfolio" class="tab-content">
+            <h3 style="margin-bottom: 1rem; color: #667eea;">Open Positions</h3>
+            <table id="portfolioTable">
+              <thead>
+                <tr>
+                  <th>Ticker</th>
+                  <th>Shares</th>
+                  <th>Entry</th>
+                  <th>Current</th>
+                  <th>Value</th>
+                  <th>P&L</th>
+                </tr>
+              </thead>
+              <tbody id="portfolioBody">
+                <tr>
+                  <td colspan="6" style="text-align: center; color: #999;">
+                    No open positions
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Trade Log Tab -->
+          <div id="trades" class="tab-content">
+            <h3 style="margin-bottom: 1rem; color: #667eea;">Recent Trades</h3>
+            <div id="tradesLog" style="font-size: 0.9rem; line-height: 1.8;">
+              <p style="color: #999;">No trades executed yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom: Console Log -->
+    <div class="card">
+      <h2>System Log</h2>
+      <div id="log" class="log"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8001";
+    let scanResults = [];
+
+    function log(msg, type = 'info') {
+      const el = document.getElementById("log");
+      const entry = document.createElement("div");
+      entry.className = `log-entry log-${type}`;
+      const time = new Date().toLocaleTimeString();
+      entry.textContent = `[${time}] ${msg}`;
+      el.insertBefore(entry, el.firstChild);
+      
+      // Keep only last 100 entries
+      while (el.children.length > 100) {
+        el.removeChild(el.lastChild);
+      }
+    }
+
+    function updateStats() {
+      fetch(`${API_BASE}/portfolio`)
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById("equity").textContent = data.equity.toLocaleString('en-US', {maximumFractionDigits: 0});
+          document.getElementById("positions-count").textContent = data.num_positions;
+          document.getElementById("invested").textContent = data.total_invested.toFixed(0);
+          
+          const pnlEl = document.getElementById("pnl-value");
+          const pnlChangeEl = document.getElementById("pnl-change");
+          const pnl = data.total_pnl;
+          const pnlPct = data.total_pnl_percent;
+          
+          pnlEl.textContent = `$${pnl.toFixed(2)}`;
+          pnlEl.className = pnl >= 0 ? 'positive' : 'negative';
+          
+          pnlChangeEl.textContent = `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`;
+          pnlChangeEl.className = `stat-change ${pnl >= 0 ? 'positive' : 'negative'}`;
+        })
+        .catch(e => log(`Error updating stats: ${e.message}`, 'error'));
+    }
+
+    async function runScan() {
+      const subreddits = document.getElementById("subreddits").value
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const body = {
+        subreddits: subreddits,
+        lookback_days: Number(document.getElementById("lookback_days").value),
+        post_limit_each: Number(document.getElementById("post_limit_each").value),
+        price_max: Number(document.getElementById("price_max").value),
+        min_dollar_vol: Number(document.getElementById("min_dollar_vol").value)
+      };
+
+      log("🔍 Starting Reddit screener...", 'info');
+      document.getElementById("scanStatus").textContent = "Scanning Reddit (this may take 30-60 seconds)...";
+
+      try {
+        const resp = await fetch(`${API_BASE}/scan`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.detail || resp.statusText);
+        }
+
+        const data = await resp.json();
+        scanResults = data.rows || [];
+        
+        document.getElementById("scanStatus").textContent = 
+          `✅ Found ${data.count_raw} mentions, ${data.count_ranked} after filters`;
+        
+        log(`✅ Screener complete: ${data.count_ranked} qualified tickers`, 'success');
+        renderScreenerResults(data.rows || []);
+        loadPredictions();
+      } catch (e) {
+        log(`❌ Screener error: ${e.message}`, 'error');
+        document.getElementById("scanStatus").textContent = `Error: ${e.message}`;
+      }
+    }
+
+    async function runTrade() {
+      if (scanResults.length === 0) {
+        log("❌ Run screener first", 'error');
+        return;
+      }
+
+      const body = {
+        equity: 25_000,
+        risk_per_trade: Number(document.getElementById("risk_per_trade").value) / 100,
+        max_positions: Number(document.getElementById("max_positions").value),
+        min_sentiment: Number(document.getElementById("min_sentiment").value),
+        min_mentions: Number(document.getElementById("min_mentions").value),
+        live: false
+      };
+
+      log("🚀 Executing mock trades...", 'info');
+      document.getElementById("tradeStatus").textContent = "Executing trades...";
+
+      try {
+        const resp = await fetch(`${API_BASE}/trade`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.detail || resp.statusText);
+        }
+
+        const data = await resp.json();
+        log(`✅ Executed ${data.executed} trades`, 'success');
+        document.getElementById("tradeStatus").textContent = 
+          `✅ ${data.executed} trades executed, ${data.total_dollars.toLocaleString('en-US', {style: 'currency', currency: 'USD'})} notional`;
+
+        updateStats();
+        renderPortfolio(data.portfolio);
+        renderTrades(data.orders || []);
+      } catch (e) {
+        log(`❌ Trade error: ${e.message}`, 'error');
+        document.getElementById("tradeStatus").textContent = `Error: ${e.message}`;
+      }
+    }
+
+    async function loadPredictions() {
+      try {
+        const resp = await fetch(`${API_BASE}/predictions`, { method: 'POST' });
+        const data = await resp.json();
+        renderPredictions(data);
+        log("✅ Loaded ML predictions", 'success');
+      } catch (e) {
+        log(`Error loading predictions: ${e.message}`, 'warn');
+      }
+    }
+
+    async function resetPortfolio() {
+      if (!confirm("Reset portfolio to $25,000?")) return;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/reset-portfolio`, { method: 'POST' });
+        const data = await resp.json();
+        log(data.message, 'success');
+        updateStats();
+        renderPortfolio({ positions: [] });
+      } catch (e) {
+        log(`Reset error: ${e.message}`, 'error');
+      }
+    }
+
+    function renderScreenerResults(rows) {
+      const tbody = document.getElementById("resultsBody");
+      tbody.innerHTML = "";
+      
+      (rows || []).forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><span class="symbol">${row.ticker}</span></td>
+          <td>${row.mentions}</td>
+          <td><span class="${row.avg_sentiment >= 0.5 ? 'positive' : 'negative'}">${row.avg_sentiment?.toFixed(2)}</span></td>
+          <td>$${row.last?.toFixed(2)}</td>
+          <td>$${(row.avg_dollar_vol || 0).toLocaleString('en-US', {maximumFractionDigits: 0})}</td>
+          <td>${row.rank_score?.toFixed(3)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">No results</td></tr>';
+      }
+    }
+
+    function renderPredictions(predictions) {
+      const container = document.getElementById("predictionsContainer");
+      container.innerHTML = "";
+      
+      Object.values(predictions).forEach(pred => {
+        const div = document.createElement("div");
+        div.className = "prediction-card";
+        div.innerHTML = `
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <strong>${pred.ticker}</strong>
+            <span class="signal-${pred.signal.toLowerCase().split('_')[0]}">${pred.signal}</span>
+          </div>
+          <div class="prediction-row">
+            <span class="prediction-label">Current Price</span>
+            <span class="prediction-value">$${pred.current_price.toFixed(2)}</span>
+          </div>
+          <div class="prediction-row">
+            <span class="prediction-label">Predicted Price</span>
+            <span class="prediction-value">$${pred.prediction.predicted_price.toFixed(2)}</span>
+          </div>
+          <div class="prediction-row">
+            <span class="prediction-label">Confidence</span>
+            <span class="prediction-value">${(pred.prediction.confidence * 100).toFixed(0)}%</span>
+          </div>
+          <div class="confidence-bar">
+            <div class="confidence-fill" style="width: ${pred.prediction.confidence * 100}%"></div>
+          </div>
+          <div class="prediction-row">
+            <span class="prediction-label">Trend</span>
+            <span class="prediction-value">${pred.prediction.trend.toUpperCase()}</span>
+          </div>
+          <div class="prediction-row">
+            <span class="prediction-label">Risk/Reward</span>
+            <span class="prediction-value">${pred.risk_reward.risk_reward_ratio.toFixed(2)}:1</span>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderPortfolio(portfolio) {
+      const tbody = document.getElementById("portfolioBody");
+      tbody.innerHTML = "";
+      
+      const positions = portfolio.positions || [];
+      if (positions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">No open positions</td></tr>';
+        return;
+      }
+      
+      positions.forEach(pos => {
+        const pnl = pos.current_price * pos.shares - pos.entry_price * pos.shares;
+        const pnlPct = pnl / (pos.entry_price * pos.shares) * 100;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><span class="symbol">${pos.symbol}</span></td>
+          <td>${pos.shares}</td>
+          <td>$${pos.entry_price.toFixed(2)}</td>
+          <td>$${pos.current_price.toFixed(2)}</td>
+          <td>$${(pos.current_price * pos.shares).toFixed(2)}</td>
+          <td><span class="${pnl >= 0 ? 'positive' : 'negative'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)} (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTrades(trades) {
+      const div = document.getElementById("tradesLog");
+      if (!trades || trades.length === 0) {
+        div.innerHTML = '<p style="color: #999;">No trades executed yet</p>';
+        return;
+      }
+      
+      div.innerHTML = trades.map((t, i) => `
+        <div style="padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">
+          <strong>#${trades.length - i}</strong> ${t.symbol} | ${t.shares} shares @ $${t.price.toFixed(2)} | ${new Date(t.timestamp).toLocaleTimeString()}
+        </div>
+      `).join("");
+    }
+
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+      
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Initial stats load
+    updateStats();
+    log("🚀 Penny Buzz initialized - ready to trade!", 'success');
+  </script>
+</body>
+</html>
